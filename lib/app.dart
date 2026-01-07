@@ -33,8 +33,8 @@ class _AppState extends State<App> {
           });
         },
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.filter_vintage_rounded), label: 'Floradex'),
-          NavigationDestination(icon: Icon(Icons.filter_center_focus_rounded), label: 'Scanner')
+          NavigationDestination(icon: Icon(Icons.filter_vintage_rounded), label: 'Collections'),
+          NavigationDestination(icon: Icon(Icons.filter_center_focus_rounded), label: 'Identifier')
         ]
       ),
     );

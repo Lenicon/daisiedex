@@ -15,7 +15,7 @@ class _FloradexState extends State<Floradex> {
       appBar: appBar(),
       body: Column(
         children: [
-          searchField()
+          searchField(),
         ],
       ),
     );
@@ -38,7 +38,8 @@ class _FloradexState extends State<Floradex> {
               filled: true,
               hintText: 'Search discovered plant...',
               hintStyle: TextStyle(
-                color: Colors.black54
+                color: Colors.black54,
+                fontSize: 18,
               ),
               // fillColor: Color.fromARGB(255, 247, 220, 238),
               contentPadding: EdgeInsets.all(15),
@@ -54,8 +55,9 @@ class _FloradexState extends State<Floradex> {
 
   AppBar appBar() {
     return AppBar(
+      centerTitle: true,
       title: Text(
-        'Floradex',
+        'Collections',
         style: TextStyle(
           color: Colors.black,
           fontSize: 24,

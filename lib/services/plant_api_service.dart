@@ -15,12 +15,17 @@ Future<void> identifyPlant(List<PlantPhoto> selectedPhotos) async {
   // 2. Loop through your photos and add only the ones that have a path
   for (var photo in selectedPhotos) {
     // Add the image file
-    var file = await http.MultipartFile.fromPath('images', photo.path);
-    request.files.add(file);
+    request.files.add(await http.MultipartFile.fromPath(
+      'images', 
+      photo.path
+    ));
     
     // Add the corresponding organ label (must be lowercase)
-    request.fields['organs'] = photo.organ.toLowerCase();
-    }
+    request.files.add(http.MultipartFile.fromString(
+      'organs', 
+      photo.organ.toLowerCase(),
+    ));
+  }
 
   try {
     // 3. Send the request
@@ -31,8 +36,9 @@ Future<void> identifyPlant(List<PlantPhoto> selectedPhotos) async {
       var data = jsonDecode(response.body);
       
       // Accessing the scientific name from your example output:
-      String topResult = data['results'][0]['species']['scientificNameWithoutAuthor'];
-      print('Identified as: $topResult');
+      // String topResult = data['results'][0]['species']['scientificNameWithoutAuthor'];
+      print(response.body);
+      print('Remaining requests: ${data['remainingIdentificationRequests']}');
     } else {
       print('Error: ${response.statusCode}');
     }

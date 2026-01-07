@@ -1,4 +1,5 @@
 import 'package:floradex/models/plant_photo.dart';
+import 'package:floradex/services/plant_api_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 
@@ -26,7 +27,7 @@ class _ScannerState extends State<Scanner> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              "Organ Photos: ${_selectedPhotos.length} / $_maxPhotos (Up to 5 total)",
+              "Photos: ${_selectedPhotos.length} / $_maxPhotos (same plant's organs)",
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ),
@@ -190,18 +191,27 @@ class _ScannerState extends State<Scanner> {
   }
 
   Future<String?> _showOrganDialog() async {
-    final List<String> options = ['Leaf', 'Flower', 'Fruit', 'Bark', "I don't know (Auto)"];
+    final List<String> options = ['Leaf', 'Flower', 'Fruit', 'Bark', "Auto"];
     
     return showDialog<String>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: const Text('Identify the organ'),
           content: const Text('Which part of the plant is in this photo?'),
           actions: options.map((String organ) {
-            return TextButton(
-              onPressed: () => Navigator.pop(context, organ),
-              child: Text(organ),
+            return SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () => Navigator.pop(context, organ),
+                child: Text(
+                  organ.contains("Auto") ? "I don't know (Auto)" : organ, 
+                  // textAlign: TextAlign.left,
+                  style: TextStyle(color: Colors.black),
+                ),
+                
+              )
             );
           }).toList(),
         );
@@ -209,6 +219,7 @@ class _ScannerState extends State<Scanner> {
     );
   }
 
+  bool _isLoading = false;
   Widget _buildIdentifyButton() {
     return Padding(
       padding: const EdgeInsets.all(20.0),
@@ -219,17 +230,35 @@ class _ScannerState extends State<Scanner> {
           minimumSize: const Size(double.infinity, 50),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
-        onPressed: _selectedPhotos.isEmpty ? null : () {
+        onPressed: _selectedPhotos.isEmpty ? null : _isLoading ? null : () async {
           // Logic to send _selectedPhotos to the API
+          setState(()=>_isLoading = true);
+          
+          // identify plant
+          await identifyPlant(_selectedPhotos);
+
+          // for debugging only, replace later
+          // await Future.delayed(const Duration(seconds: 3));
+
+          setState(()=>_isLoading = false);
         },
-        child: const Text("Identify Plant", style: TextStyle(color: Colors.white, fontSize: 18)),
+        child: _isLoading 
+          ? Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(width: 18, height: 18,child:CircularProgressIndicator(color: Colors.white)),
+              SizedBox(width:16.0),
+              Transform.translate(offset: Offset(0, 2), child: Text("Hmm... identifying...", style: TextStyle(color: Colors.white, fontSize: 18)))
+            ])
+          : Transform.translate(offset: Offset(0, 2), child:Text("Identify Plant", style: TextStyle(color: Colors.white, fontSize: 18)),)
       ),
     );
   }
 
   AppBar appBar() {
     return AppBar(
-      title: const Text('Plant Scanner', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900)),
+      title: const Text('Identifier', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900)),
       elevation: 0.0,
       centerTitle: true,
     );

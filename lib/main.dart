@@ -19,6 +19,10 @@ class MainApp extends StatelessWidget {
 
   ThemeData pinkTheme() {
     return ThemeData(
+      // textTheme: TextTheme(
+      //   bodyMedium: TextStyle(height: 5), // Increase height to shift text down
+      //   displayLarge: TextStyle(height: 2),
+      // ),
       fontFamily: 'Zain',
       colorScheme: ColorScheme(
         brightness: Brightness.light,
