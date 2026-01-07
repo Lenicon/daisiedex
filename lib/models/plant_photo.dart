@@ -1,6 +1,6 @@
 class PlantPhoto {
-  String? path;
-  String organ; // Leaf, Flower, Fruit, Bark, or Habit
+  String path;
+  String organ; // Auto, Leaf, Flower, Fruit, Bark, or Habit
 
-  PlantPhoto({this.path, required this.organ});
+  PlantPhoto({required this.path, required this.organ});
 }
