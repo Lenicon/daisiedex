@@ -8,6 +8,7 @@ class StorageService {
   static const int maxFileSize = 20 * 1024 * 1024; // 20 MB in bytes
 
   static List<dynamic> savedPlants = [];
+  // static List<dynamic> filteredPlants = [];
 
   // 2. This can now be called from ANY file: StorageService.load();
   static Future<void> load() async {
@@ -25,6 +26,26 @@ class StorageService {
     
     // Update the global list
     savedPlants = allPlants;
+    
+    // if (filteredPlants.isEmpty) filteredPlants = allPlants;
+
+  }
+
+  static List runSearch(String query) {
+    List<dynamic> results = [];
+    if (query.isEmpty) {
+      // If the search bar is empty, show everything
+      results = savedPlants;
+    } else {
+      // Filter the master list based on the nickname
+      results = savedPlants
+        .where((plant) =>
+            plant['nickname'].toString().toLowerCase().contains(query.toLowerCase()))
+        .toList();
+    }
+
+    return results;
+    
   }
 
 

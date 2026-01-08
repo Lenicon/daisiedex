@@ -127,7 +127,7 @@ class _ResultScreenState extends State<ResultScreen> {
 
             final savedResult = PlantResult(
               imagePaths: permanentPaths,
-              nickname: _nicknameController.text,
+              nickname: _nicknameController.text == '' ? 'Unnamed' : _nicknameController.text,
               scientificName: widget.result.scientificName,
               authorship: widget.result.authorship,
               family: widget.result.family,
@@ -139,7 +139,7 @@ class _ResultScreenState extends State<ResultScreen> {
 
             if (mounted) {
               snackbarKey.currentState?.showSnackBar(
-                const SnackBar(content: Text("Added to permanent collection!"))
+                const SnackBar(content: Text("Added to collection!"), duration: Durations.short4)
               );
               
               // ignore: use_build_context_synchronously

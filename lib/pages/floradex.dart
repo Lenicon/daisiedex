@@ -18,7 +18,7 @@ class _FloradexState extends State<Floradex> {
   void initState(){
     super.initState();
     StorageService.load();
-    _filteredPlants = StorageService.savedPlants;
+    if (_filteredPlants.isEmpty) setState(()=>_filteredPlants = StorageService.savedPlants);
   }
 
   @override
@@ -77,7 +77,7 @@ class _FloradexState extends State<Floradex> {
         ),
         const SizedBox(height: 8),
         Text(
-          plant['nickname'] == '' ? 'Unnamed' : plant['nickname'] ?? 'Unnamed' ,
+          plant['nickname'] ?? 'Unnamed' ,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
@@ -101,7 +101,7 @@ class _FloradexState extends State<Floradex> {
             )]
           ),
           child: TextField(
-            onChanged: (value) => _runSearch(value),
+            onChanged: (value) => setState(()=>_filteredPlants = StorageService.runSearch(value)),
             decoration: InputDecoration(
               filled: true,
               hint: Text('Search collected plant...', style: TextStyle(color: Colors.black54)),
@@ -118,24 +118,7 @@ class _FloradexState extends State<Floradex> {
   }
 
 
-  void _runSearch(String query) {
-    List<dynamic> results = [];
-    if (query.isEmpty) {
-      // If the search bar is empty, show everything
-      results = StorageService.savedPlants;
-    } else {
-      // Filter the master list based on the nickname
-      results = StorageService.savedPlants
-          .where((plant) =>
-              plant['nickname'].toString().toLowerCase().contains(query.toLowerCase()))
-          .toList();
-    }
-
-    // Update the UI with the filtered results
-    setState(() {
-      _filteredPlants = results;
-    });
-  }
+  
 
   AppBar appBar() {
     return AppBar(
