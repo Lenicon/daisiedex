@@ -95,12 +95,12 @@ class _ScannerState extends State<Scanner> {
         // Delete button
         Positioned(
           top: 4,
-          right: 4,
+          left: 4,
           child: GestureDetector(
             onTap: () => setState(() => _selectedPhotos.removeAt(index)),
             child: const CircleAvatar(
               radius: 12,
-              backgroundColor: Colors.red,
+              backgroundColor: Color.fromARGB(255, 210, 46, 35),
               child: Icon(Icons.close, size: 16, color: Colors.white),
             ),
           ),
@@ -165,6 +165,10 @@ class _ScannerState extends State<Scanner> {
                   Navigator.of(context).pop();
                 },
               ),
+              // SizedBox(height: 50.0)
+              ListTile(
+                minTileHeight: 20,
+              )
             ],
           ),
         );

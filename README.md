@@ -1,4 +1,6 @@
-# PlantLady
+# Daisie Book
+
+A daisie for a pretty lady.
 
 A mobile app that can **identify plants** based on photos and other features.
 

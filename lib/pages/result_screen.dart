@@ -174,6 +174,44 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 
+  ////////////// FOR IMAGES /////////////////////
+  void _openFullImage(List<String> paths, int initialIndex) {
+    showDialog(
+      context: context,
+      useSafeArea: false, // Allows the image to take up the whole screen
+      builder: (context) => Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            // 1. Swipable Image Viewer
+            Center(
+              child: PageView.builder(
+                controller: PageController(initialPage: initialIndex),
+                itemCount: paths.length,
+                itemBuilder: (context, index) {
+                  return InteractiveViewer( // Allows pinching to zoom
+                    child: Image.file(
+                      File(paths[index]),
+                      fit: BoxFit.contain,
+                    ),
+                  );
+                },
+              ),
+            ),
+            // 2. Close Button
+            Positioned(
+              top: 40,
+              right: 20,
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
   Widget _buildDynamicCollage(List<String> paths) {
     double height = 200; // Total height for the banner
     int count = paths.length;
@@ -185,7 +223,7 @@ class _ResultScreenState extends State<ResultScreen> {
       return SizedBox(
         height: height,
         child: Row(
-          children:[Expanded(flex:1, child:_imageWrapper(paths[0], height))]
+          children:[Expanded(flex:1, child:_imageWrapper(paths[0], height, paths, 0))]
         )
       );
     }
@@ -196,9 +234,9 @@ class _ResultScreenState extends State<ResultScreen> {
         height: height,
         child: Row(
           children: [
-            Expanded(child: _imageWrapper(paths[0], height)),
+            Expanded(child: _imageWrapper(paths[0], height, paths, 0)),
             const SizedBox(width: 2),
-            Expanded(child: _imageWrapper(paths[1], height)),
+            Expanded(child: _imageWrapper(paths[1], height, paths, 1)),
           ],
         ),
       );
@@ -210,15 +248,15 @@ class _ResultScreenState extends State<ResultScreen> {
         height: height,
         child: Row(
           children: [
-            Expanded(flex: 4, child: _imageWrapper(paths[0], height)),
+            Expanded(flex: 4, child: _imageWrapper(paths[0], height, paths, 0)),
             const SizedBox(width: 2),
             Expanded(
               flex: 1,
               child: Column(
                 children: [
-                  Expanded(child: _imageWrapper(paths[1], height / 2)),
+                  Expanded(child: _imageWrapper(paths[1], height / 2, paths, 1)),
                   const SizedBox(height: 2),
-                  Expanded(child: _imageWrapper(paths[2], height / 2)),
+                  Expanded(child: _imageWrapper(paths[2], height / 2, paths, 2)),
                 ],
               ),
             ),
@@ -233,35 +271,38 @@ class _ResultScreenState extends State<ResultScreen> {
       height: height,
       child: Row(
         children: [
-          Expanded(flex: 5, child: _imageWrapper(paths[0], height)),
+          Expanded(flex: 5, child: _imageWrapper(paths[0], height, paths, 0)),
           const SizedBox(width: 2),
           Expanded(
             flex: 1,
             child: Column(
               children: [
-                Expanded(flex:2,child: _imageWrapper(paths[1], height / 3)),
+                Expanded(flex:2,child: _imageWrapper(paths[1], height / 3, paths, 1)),
                 const SizedBox(height: 2),
-                Expanded(flex:2,child: _imageWrapper(paths[2], height / 3)),
+                Expanded(flex:2,child: _imageWrapper(paths[2], height / 3, paths, 2)),
                 const SizedBox(height: 2),
                 Expanded(
                   // flex: 2,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      _imageWrapper(paths[3], height / 3),
+                      _imageWrapper(paths[3], height / 3, paths, 3),
                       if (count > 4)
-                        Container(
-                          color: Colors.black54,
-                          child: Center(
-                            child: Text(
-                              "+${count - 4}",
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold),
+                        GestureDetector(
+                          onTap: () => _openFullImage(paths, 3),
+                          child: Container(
+                            color: Colors.black54,
+                            child: Center(
+                              child: Text(
+                                "+${count - 4}",
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ),
-                        ),
+                        )
                     ],
                   ),
                 ),
@@ -274,13 +315,18 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   // Helper to handle the File Image and fit
-  Widget _imageWrapper(String path, double height) {
-    return Image.file(
-      File(path),
-      height: height,
-      fit: BoxFit.cover,
+  Widget _imageWrapper(String path, double height, List<String> allPaths, int index) {
+    return GestureDetector(
+      onTap: () => _openFullImage(allPaths, index),
+      child: Image.file(
+        File(path),
+        height: height,
+        fit: BoxFit.cover,
+      ),
     );
   }
+
+  /////////////////////// END OF IMAGE BUILDERS ////////////////
 
   Widget _infoRow(String title, String value) {
     return Padding(
