@@ -30,7 +30,9 @@ class _AppState extends State<App> {
         selectedIndex: _currentIndex,
         onDestinationSelected: (int index){
           
-          if (index == 1) StorageService.load();
+          if (index == 1) {
+            StorageService.load();
+          }
           
           setState(() {
             _currentIndex = index;

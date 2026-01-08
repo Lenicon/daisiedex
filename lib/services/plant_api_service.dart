@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+// import 'package:uuid/uuid.dart';
 // import 'dart:io';
 
 class PlantApiService {

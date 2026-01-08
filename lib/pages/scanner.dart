@@ -314,7 +314,7 @@ class _ScannerState extends State<Scanner> {
 
   AppBar appBar() {
     return AppBar(
-      title: Text('Identifier', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold, fontSize: 24)),
+      title: Text('Identifier', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold, fontSize: 20)),
       elevation: 0.0,
       centerTitle: true,
     );

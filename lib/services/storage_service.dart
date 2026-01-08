@@ -1,94 +1,125 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:floradex/models/plant_result.dart';
+import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 class StorageService {
-  static const int maxFileSize = 20 * 1024 * 1024; // 20 MB in bytes
+  static const int maxFileSize = 20 * 1024 * 1024; // 20 MB
 
   static List<dynamic> savedPlants = [];
-  // static List<dynamic> filteredPlants = [];
+  static ValueNotifier<List<dynamic>> plantsNotifier = ValueNotifier([]);
 
-  // 2. This can now be called from ANY file: StorageService.load();
+  /// Loads all plants from all collection files and updates the notifier
   static Future<void> load() async {
-    final directory = await getApplicationDocumentsDirectory();
-    List<dynamic> allPlants = [];
-    
-    final files = directory.listSync().where((file) => file.path.contains('collection_'));
-
-    for (var file in files) {
-      if (file is File) {
-        String content = await file.readAsString();
-        allPlants.addAll(jsonDecode(content));
-      }
-    }
-    
-    // Update the global list
-    savedPlants = allPlants;
-    
-    // if (filteredPlants.isEmpty) filteredPlants = allPlants;
-
+    final plants = await getAllSavedPlants();
+    savedPlants = plants;
+    plantsNotifier.value = plants;
   }
 
-  static List runSearch(String query) {
-    List<dynamic> results = [];
-    if (query.isEmpty) {
-      // If the search bar is empty, show everything
-      results = savedPlants;
-    } else {
-      // Filter the master list based on the nickname
-      results = savedPlants
-        .where((plant) =>
-            plant['nickname'].toString().toLowerCase().contains(query.toLowerCase()))
-        .toList();
-    }
-
-    return results;
-    
-  }
-
-
+  /// Saves a new plant with a unique ID and full image path list
   static Future<void> savePlant(PlantResult result) async {
     final directory = await getApplicationDocumentsDirectory();
     int fileIndex = 1;
     File targetFile;
 
-    // Find the current active file
     while (true) {
       targetFile = File('${directory.path}/collection_$fileIndex.json');
       if (await targetFile.exists()) {
         int size = await targetFile.length();
-        if (size < maxFileSize) break; // Use this file
-        fileIndex++; // File too big, move to next index
+        if (size < maxFileSize) break;
+        fileIndex++;
       } else {
         await targetFile.create();
-        await targetFile.writeAsString('[]'); // Initialize empty list
+        await targetFile.writeAsString('[]');
         break;
       }
     }
 
-    // Read current content, add new result, and write back
     List<dynamic> currentList = jsonDecode(await targetFile.readAsString());
+    
     currentList.add({
+      'id': result.id, // Saving the unique ID
       'nickname': result.nickname,
-      'firstImage': result.imagePaths.first,
+      'firstImage': result.imagePaths.isNotEmpty ? result.imagePaths.first : '',
+      'imagePaths': result.imagePaths, // Save all paths for the collage
       'scientificName': result.scientificName,
       'authorship': result.authorship,
       'family': result.family,
       'commonNames': result.commonNames,
-      'notes': result.notes
-      // Add other fields you want to save
+      'notes': result.notes,
     });
 
     await targetFile.writeAsString(jsonEncode(currentList));
+    await load(); // Refresh the notifier automatically
+  }
+
+  /// Updates nickname and notes for an existing plant via ID
+  static Future<void> updatePlant(PlantResult updatedPlant) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final files = directory.listSync().where((file) => file.path.contains('collection_'));
+
+    for (var file in files) {
+      if (file is File) {
+        List<dynamic> list = jsonDecode(await file.readAsString());
+        int index = list.indexWhere((p) => p['id'] == updatedPlant.id);
+        
+        if (index != -1) {
+          list[index]['nickname'] = updatedPlant.nickname;
+          list[index]['notes'] = updatedPlant.notes;
+          await file.writeAsString(jsonEncode(list));
+          await load(); // Broadcast changes
+          return; 
+        }
+      }
+    }
+  }
+
+  /// Deletes a plant from the JSON files and notifies the UI
+  static Future<void> deletePlant(String id) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final files = directory.listSync().where((file) => file.path.contains('collection_'));
+
+    for (var file in files) {
+      if (file is File) {
+        String content = await file.readAsString();
+        List<dynamic> list = jsonDecode(content);
+        
+        // 1. Find the plant to get its image paths before deleting it
+        int index = list.indexWhere((plant) => plant['id'] == id);
+
+        if (index != -1) {
+          final plantToDelete = list[index];
+
+          // 2. Delete the physical image files from the 'photos' folder
+          if (plantToDelete['imagePaths'] != null) {
+            List<dynamic> paths = plantToDelete['imagePaths'];
+            for (String path in paths) {
+              final imageFile = File(path);
+              if (await imageFile.exists()) {
+                await imageFile.delete(); // Removes the .jpg from storage
+              }
+            }
+          }
+
+          // 3. Remove from the JSON list
+          list.removeAt(index);
+
+          // 4. Save the updated list back to the file
+          await file.writeAsString(jsonEncode(list));
+
+          // 5. Broadcast the change to Floradex real-time
+          await load(); 
+          return;
+        }
+      }
+    }
   }
 
   static Future<List<dynamic>> getAllSavedPlants() async {
     final directory = await getApplicationDocumentsDirectory();
     List<dynamic> allPlants = [];
-    
-    // List all files in the directory starting with 'collection_'
     final files = directory.listSync().where((file) => file.path.contains('collection_'));
 
     for (var file in files) {
@@ -100,23 +131,22 @@ class StorageService {
     return allPlants;
   }
 
-
   static Future<String> saveImagePermanently(String tempPath) async {
     final directory = await getApplicationDocumentsDirectory();
-    final name = p.basename(tempPath); // Gets the filename (e.g., image.jpg)
-    
-    // Create a 'photos' subfolder if it doesn't exist
+    final name = p.basename(tempPath);
     final folder = Directory('${directory.path}/photos');
+    
     if (!await folder.exists()) {
       await folder.create(recursive: true);
     }
 
     final permanentPath = '${folder.path}/$name';
-    
-    // Copy the file from temp to permanent storage
     final File tempFile = File(tempPath);
-    final File newFile = await tempFile.copy(permanentPath);
-
-    return newFile.path; // Return the new path to save in JSON
+    
+    if (await tempFile.exists()) {
+      final File newFile = await tempFile.copy(permanentPath);
+      return newFile.path;
+    }
+    return tempPath;
   }
 }

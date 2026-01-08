@@ -1,3 +1,5 @@
+
+
 import 'dart:io';
 
 import 'package:floradex/main.dart';
@@ -5,23 +7,26 @@ import 'package:floradex/models/plant_result.dart';
 import 'package:floradex/services/storage_service.dart';
 import 'package:flutter/material.dart';
 
-class ResultScreen extends StatefulWidget {
-  final PlantResult result;
-  const ResultScreen({super.key, required this.result});
+class PlantDetailScreen extends StatefulWidget {
+  final PlantResult plant;
+  const PlantDetailScreen({super.key, required this.plant});
 
   @override
-  State<ResultScreen> createState() => _ResultScreenState();
+  State<PlantDetailScreen> createState() => _PlantDetailScreenState();
 }
 
-class _ResultScreenState extends State<ResultScreen> {
+class _PlantDetailScreenState extends State<PlantDetailScreen> {
   late TextEditingController _nicknameController;
   late TextEditingController _notesController;
+  // late String _originalNickname; // To find the record in the file later
+  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    _nicknameController = TextEditingController(text: widget.result.nickname);
-    _notesController = TextEditingController(text: widget.result.notes);
+    _nicknameController = TextEditingController(text: widget.plant.nickname);
+    _notesController = TextEditingController(text: widget.plant.notes);
+    // _originalNickname = widget.plant.nickname;
   }
 
   @override
@@ -29,15 +34,11 @@ class _ResultScreenState extends State<ResultScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
-          "Identification Result",
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onPrimary,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          )),
-        centerTitle: true,),
-      body: showcasePlant(context),
+        title: const Text("Plant Details", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+        centerTitle: true,
+      ),
+      body: _showcasePlant(),
+      
       bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 60),
         decoration: BoxDecoration(
@@ -53,9 +54,9 @@ class _ResultScreenState extends State<ResultScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [Row(
             children:[
-              _saveButton(context),
+              _backButton(context),
               const SizedBox(width: 10),
-              _discardButton(context),
+              _updateButton(),
             ]
           )],
         ),
@@ -63,117 +64,138 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 
-  bool _isSaving = false;
-  SingleChildScrollView showcasePlant(BuildContext context) {
+  SingleChildScrollView _showcasePlant() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 2),
-          // Collaged Images
-          _buildDynamicCollage(widget.result.imagePaths),
-          
+          // REUSE your collage logic here
+          _buildDynamicCollage(widget.plant.imagePaths),
           const SizedBox(height: 16),
-
-          // Nickname (Editable)
+          
           TextField(
             controller: _nicknameController,
             decoration: const InputDecoration(labelText: 'Nickname', border: OutlineInputBorder()),
-            onChanged: (val) => widget.result.nickname = val,
           ),
+          
           const SizedBox(height: 16),
 
-          // Information Table
-          _infoRow("Scientific Name", widget.result.scientificName),
-          _infoRow("Authorship", widget.result.authorship),
-          _infoRow("Family", widget.result.family),
-          _infoRow("Common Names", widget.result.commonNames.join(", ")),
+          _infoRow("Scientific Name", widget.plant.scientificName),
+          _infoRow("Authorship", widget.plant.authorship),
+          _infoRow("Family", widget.plant.family),
+          _infoRow("Common Names", widget.plant.commonNames.join(", ")),
 
           const SizedBox(height: 16),
 
-          // Notes (Editable)
           TextField(
             controller: _notesController,
-            keyboardType: TextInputType.multiline,
             minLines: 3,
             maxLines: 5,
-            decoration: const InputDecoration(labelText: 'Notes', border: OutlineInputBorder(), hint: Text('Enter your notes here...', style: TextStyle(color: Colors.black54),)),
-            onChanged: (val) => widget.result.notes = val,
+            decoration: const InputDecoration(labelText: 'Notes', border: OutlineInputBorder()),
           ),
-
           const SizedBox(height: 20),
 
+          SizedBox(
+            width: double.infinity,
+            child: TextButton.icon(
+              onPressed: _isSaving ? null : _showDeleteConfirmation,
+              icon: const Icon(Icons.delete_forever, color: Colors.red),
+              label: const Text("Delete from Collection", style: TextStyle(color: Colors.red)),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Expanded _discardButton(BuildContext context) {
+  Expanded _backButton(BuildContext context) {
     return Expanded(
       child: OutlinedButton(
         onPressed: () => Navigator.pop(context),
-        child: Text("Discard", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+        child: Text("Back", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
       ),
     );
   }
 
-  Expanded _saveButton(BuildContext context) {
+  Expanded _updateButton() {
     return Expanded(
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).primaryColor,
           disabledBackgroundColor: Colors.grey
         ),
-        onPressed: _isSaving ? null : () async {
-          // SAVE LOGIC
-          
-          setState(() => _isSaving = true);
-
-          try {
-            List<String> permanentPaths = [];
-            
-            for (String tempPath in widget.result.imagePaths) {
-              String newPath = await StorageService.saveImagePermanently(tempPath);
-              permanentPaths.add(newPath);
-            }
-
-            final savedResult = PlantResult(
-              id: widget.result.id,
-              imagePaths: permanentPaths,
-              nickname: _nicknameController.text == '' ? 'Unnamed' : _nicknameController.text,
-              scientificName: widget.result.scientificName,
-              authorship: widget.result.authorship,
-              family: widget.result.family,
-              commonNames: widget.result.commonNames,
-              notes: widget.result.notes,
-            );
-
-            await StorageService.savePlant(savedResult);
-
-            if (mounted) {
-              snackbarKey.currentState?.showSnackBar(
-                const SnackBar(content: Text("Added to collection!"), duration: Durations.short4)
-              );
-              
-              // ignore: use_build_context_synchronously
-              Navigator.pop(context);
-            }
-
-
-          } catch (e) {
-            _showErrorDialog("Failed to save: $e");
-          } finally {
-            if (mounted) setState(() => _isSaving = false);
-          }
-
-        },
-        child: 
-          Text(_isSaving ? "Saving..." : "Save Plant", style: TextStyle(color: Colors.white)),
+        onPressed: _isSaving ? null : _handleUpdate,
+        child: Text(_isSaving ? "Updating..." : "Update Details", style: TextStyle(color: Colors.white)),
       ),
     );
   }
 
+
+  Future<void> _showDeleteConfirmation() async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          actionsAlignment: MainAxisAlignment.start,
+          backgroundColor: Colors.white,
+          title: const Text("Delete Plant?"),
+          content: const Text("This will permanently remove this plant from your collection and cannot be undone."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // Cancel
+              child: const Text("Cancel", style: TextStyle(color: Colors.black54)),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Close the dialog
+                Navigator.pop(context);
+                
+                await StorageService.deletePlant(widget.plant.id);
+                
+                if (mounted) {
+                  // ignore: use_build_context_synchronously
+                  Navigator.pop(context); 
+                  snackbarKey.currentState?.showSnackBar(
+                    const SnackBar(content: Text("Plant removed from collection"), duration: Durations.short4)
+                  );
+                }
+              },
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _handleUpdate() async {
+    setState(() => _isSaving = true);
+    try {
+      widget.plant.nickname = _nicknameController.text;
+      widget.plant.notes = _notesController.text;
+
+      await StorageService.updatePlant(widget.plant);
+      
+      // Global refresh so the grid updates
+      await StorageService.load();
+
+      if (mounted) {
+        snackbarKey.currentState?.showSnackBar(
+          const SnackBar(content: Text("Changes saved!"), duration: Durations.short4)
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      _showErrorDialog("Update failed: $e");
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  // ... (Paste your _buildDynamicCollage, _imageWrapper, _infoRow, and _showErrorDialog here)
   Widget _buildDynamicCollage(List<String> paths) {
     double height = 200; // Total height for the banner
     int count = paths.length;
