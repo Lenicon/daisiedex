@@ -1,6 +1,7 @@
 
 import 'package:floradex/pages/floradex.dart';
 import 'package:floradex/pages/scanner.dart';
+import 'package:floradex/services/storage_service.dart';
 import 'package:flutter/material.dart';
 
 class App extends StatefulWidget {
@@ -28,9 +29,13 @@ class _AppState extends State<App> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (int index){
+          
+          if (index == 1) StorageService.load();
+          
           setState(() {
             _currentIndex = index;
           });
+
         },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.filter_vintage_rounded), label: 'Collections'),
@@ -39,4 +44,5 @@ class _AppState extends State<App> {
       ),
     );
   }
+  
 }

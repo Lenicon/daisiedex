@@ -4,12 +4,18 @@ import 'package:floradex/models/plant_result.dart';
 // import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 // import 'dart:io';
 
 class PlantApiService {
   static final String _apiKey = Env.plantKey;
 
   static Future<PlantResult> identifyPlant(List<PlantPhoto> photos) async {
+    final bool isConnected = await InternetConnection().hasInternetAccess;
+
+    if (!isConnected) throw Exception("Looks like you have no internet connection, pretty lady.");
+
     final uri = Uri.parse('https://my-api.plantnet.org/v2/identify/all?api-key=$_apiKey');
     
     var request = http.MultipartRequest('POST', uri);
@@ -55,7 +61,7 @@ class PlantApiService {
       }
 
     } catch (e) {
-      throw Exception("Check your internet connection and try again.");
+      throw Exception("Something went wrong. Is that really a photo of a plant, pretty lady?");
     }
 
   }

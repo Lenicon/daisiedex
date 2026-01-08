@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:floradex/services/storage_service.dart';
 import 'package:flutter/material.dart';
 
 class Floradex extends StatefulWidget {
@@ -8,6 +11,16 @@ class Floradex extends StatefulWidget {
 }
 
 class _FloradexState extends State<Floradex> {
+  // List<dynamic> _savedPlants = [];
+  List<dynamic> _filteredPlants = [];
+
+  @override
+  void initState(){
+    super.initState();
+    StorageService.load();
+    _filteredPlants = StorageService.savedPlants;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,6 +29,28 @@ class _FloradexState extends State<Floradex> {
       body: Column(
         children: [
           searchField(),
+
+          const SizedBox(height: 20),
+
+          Expanded(child: _filteredPlants.isEmpty
+            ? const Center(child: Text("No plants collected yet!", style: TextStyle(color: Colors.black54),))
+            : GridView.builder(
+              padding: EdgeInsets.all(20.0),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 15,
+                mainAxisSpacing: 15,
+                childAspectRatio: 0.8
+              ),
+              itemCount: _filteredPlants.length,
+              itemBuilder: (context, index) {
+                final plant = _filteredPlants[index];
+                return _buildCollectionCard(plant);
+              },
+
+            )
+          )
+
         ],
       ),
     );
@@ -23,6 +58,38 @@ class _FloradexState extends State<Floradex> {
 
 
   // BUILDER FUNCTIONS
+
+  Widget _buildCollectionCard(dynamic plant) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+
+      children: [
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              image: DecorationImage(
+                image: FileImage(File(plant['firstImage'])),
+                fit: BoxFit.cover
+              )
+            ),
+          )
+        ),
+        const SizedBox(height: 8),
+        Text(
+          plant['nickname'] == '' ? 'Unnamed' : plant['nickname'] ?? 'Unnamed' ,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize:16
+          ),
+        )
+      ],
+    );
+  }
+
+
   Container searchField() {
     return Container(
           margin: EdgeInsets.only(top: 30, left: 20, right: 20),
@@ -34,13 +101,10 @@ class _FloradexState extends State<Floradex> {
             )]
           ),
           child: TextField(
+            onChanged: (value) => _runSearch(value),
             decoration: InputDecoration(
               filled: true,
-              hintText: 'Search discovered plant...',
-              hintStyle: TextStyle(
-                color: Colors.black54,
-                fontSize: 18,
-              ),
+              hint: Text('Search collected plant...', style: TextStyle(color: Colors.black54)),
               // fillColor: Color.fromARGB(255, 247, 220, 238),
               contentPadding: EdgeInsets.all(15),
               prefixIcon: Icon(Icons.search),
@@ -53,13 +117,33 @@ class _FloradexState extends State<Floradex> {
         );
   }
 
+
+  void _runSearch(String query) {
+    List<dynamic> results = [];
+    if (query.isEmpty) {
+      // If the search bar is empty, show everything
+      results = StorageService.savedPlants;
+    } else {
+      // Filter the master list based on the nickname
+      results = StorageService.savedPlants
+          .where((plant) =>
+              plant['nickname'].toString().toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    }
+
+    // Update the UI with the filtered results
+    setState(() {
+      _filteredPlants = results;
+    });
+  }
+
   AppBar appBar() {
     return AppBar(
       centerTitle: true,
       title: Text(
         'Collections',
         style: TextStyle(
-          color: Colors.black,
+          color: Theme.of(context).colorScheme.onPrimary,
           fontSize: 24,
           fontWeight: FontWeight.bold,
         ),

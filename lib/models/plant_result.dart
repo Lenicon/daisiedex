@@ -5,6 +5,7 @@ class PlantResult {
   final String authorship;
   final String family;
   final List<String> commonNames;
+  String notes;
 
   PlantResult({
     required this.imagePaths,
@@ -13,5 +14,6 @@ class PlantResult {
     required this.authorship,
     required this.family,
     required this.commonNames,
+    this.notes = ''
   });
 }

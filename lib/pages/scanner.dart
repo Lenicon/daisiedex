@@ -1,6 +1,7 @@
 import 'package:floradex/models/plant_photo.dart';
 import 'package:floradex/pages/result_screen.dart';
 import 'package:floradex/services/plant_api_service.dart';
+import 'package:floradex/services/storage_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 
@@ -248,6 +249,7 @@ class _ScannerState extends State<Scanner> {
     );
   }
 
+  bool _caughtError = false;
   void _handleIdentification() async {
     setState(() => _isLoading = true);
 
@@ -257,21 +259,28 @@ class _ScannerState extends State<Scanner> {
 
       // 2. If it reaches here, it succeeded. Use context to navigate.
       if (!mounted) return;
-      
-      Navigator.push(
+      setState(() => _caughtError = false);
+      // Wait for the Result Screen to close
+      final wasSaved = await Navigator.push(
         context,
         MaterialPageRoute(builder: (c) => ResultScreen(result: result)),
       );
 
+      // If the user saved a plant, refresh the data
+      if (wasSaved == true) {
+        StorageService.load(); // Call your existing load function
+      }
+
     } catch (e) {
       // 3. If the service "threw" an error, we catch it here and show the popup
       if (!mounted) return;
+      setState(() => _caughtError = true);
       _showErrorDialog(e.toString().replaceFirst('Exception: ', ''));
       
     } finally {
       if (mounted) {
         setState(() {
-          _selectedPhotos.clear();
+          _caughtError ? null : _selectedPhotos.clear();
           _isLoading = false;
         });
       }
@@ -283,11 +292,12 @@ class _ScannerState extends State<Scanner> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Row(
+          backgroundColor: Colors.white,
+          title: Row(
             children: [
               Icon(Icons.error_outline, color: Colors.red),
               SizedBox(width: 10),
-              Text("Error"),
+              Transform.translate(offset: Offset(0, 2), child: Text("Error", style: TextStyle(fontWeight: FontWeight.bold),)),
             ],
           ),
           content: Text(message),
@@ -304,7 +314,7 @@ class _ScannerState extends State<Scanner> {
 
   AppBar appBar() {
     return AppBar(
-      title: Text('Identifier', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold)),
+      title: Text('Identifier', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold, fontSize: 24)),
       elevation: 0.0,
       centerTitle: true,
     );
