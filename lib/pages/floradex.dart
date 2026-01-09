@@ -33,13 +33,12 @@ class _FloradexState extends State<Floradex> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
+      // backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: appBar(),
       body: Column(
         children: [
           searchField(),
-
-          const SizedBox(height: 20),
 
           Expanded(
             child: ValueListenableBuilder<List<dynamic>>(
@@ -61,7 +60,7 @@ class _FloradexState extends State<Floradex> {
                 }
 
               return GridView.builder(
-                    padding: const EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.only(bottom: 20.0, left:20, right:20),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 15,
@@ -151,7 +150,7 @@ class _FloradexState extends State<Floradex> {
 
   Container searchField() {
     return Container(
-          margin: EdgeInsets.only(top: 30, left: 20, right: 20),
+          margin: EdgeInsets.all(20),
           decoration: BoxDecoration(
             boxShadow: [BoxShadow(
               color: Color.fromARGB(12, 29, 22, 23),
@@ -162,9 +161,11 @@ class _FloradexState extends State<Floradex> {
           child: TextField(
             controller: _searchController,
             onChanged: (value) => setState(()=>{}),
+            style: TextStyle(color: Color(0xFF524444), fontSize: 16),
             decoration: InputDecoration(
               filled: true,
-              hint: Text('Search collected plant...', style: TextStyle(color: Colors.black54)),
+              focusColor: Color(0xFF524444),
+              hint: Text('Search gathered plant...', style: TextStyle(color: Colors.black54)),
               // fillColor: Color.fromARGB(255, 247, 220, 238),
               contentPadding: EdgeInsets.all(15),
               prefixIcon: Icon(Icons.search),
@@ -195,21 +196,8 @@ class _FloradexState extends State<Floradex> {
       centerTitle: true,
       title: ValueListenableBuilder<List<dynamic>>(
         valueListenable: StorageService.plantsNotifier,
-        builder: (context, plants, child){
-
-          return Text(
-            'Collections (${plants.length})',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          );
-        }
+        builder: (context, plants, child) => Text('Florilegium (${plants.length})')
       ),
-      // backgroundColor: Color.fromARGB(255, 247, 220, 238),
-      elevation: 0.0,
-      // shadowColor: Colors.pink,
     );
   }
 }

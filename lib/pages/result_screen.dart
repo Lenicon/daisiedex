@@ -27,24 +27,17 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          "Identification Result",
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onPrimary,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          )),
-        centerTitle: true,),
+      // backgroundColor: Colors.white,
+      appBar: AppBar(title: Text("Identification Result")),
+      
       body: showcasePlant(context),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 60),
+        padding: const EdgeInsets.fromLTRB(16, 50, 16, 100),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.secondary,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black,
               offset: const Offset(0, -4),
               blurRadius: 10, 
             )]
@@ -113,7 +106,7 @@ class _ResultScreenState extends State<ResultScreen> {
     return Expanded(
       child: OutlinedButton(
         onPressed: () => Navigator.pop(context),
-        child: Text("Discard", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+        child: Text("Discard"),
       ),
     );
   }
@@ -122,8 +115,11 @@ class _ResultScreenState extends State<ResultScreen> {
     return Expanded(
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).primaryColor,
-          disabledBackgroundColor: Colors.grey
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Colors.black54,
+          disabledBackgroundColor: Colors.grey,
+          disabledForegroundColor: Colors.white,
+          animationDuration: Duration.zero,
         ),
         onPressed: _isSaving ? null : () async {
           // SAVE LOGIC
@@ -153,7 +149,7 @@ class _ResultScreenState extends State<ResultScreen> {
 
             if (mounted) {
               snackbarKey.currentState?.showSnackBar(
-                const SnackBar(content: Text("Added to collection!"), duration: Durations.short4)
+                const SnackBar(content: Text("Added to collection!"), duration: Durations.medium4)
               );
               
               // ignore: use_build_context_synchronously
@@ -169,7 +165,7 @@ class _ResultScreenState extends State<ResultScreen> {
 
         },
         child: 
-          Text(_isSaving ? "Saving..." : "Save Plant", style: TextStyle(color: Colors.white)),
+          Text(_isSaving ? "Saving..." : "Save Plant"),
       ),
     );
   }
@@ -350,7 +346,7 @@ class _ResultScreenState extends State<ResultScreen> {
           backgroundColor: Colors.white,
           title: Row(
             children: [
-              Icon(Icons.error_outline, color: Colors.red),
+              Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
               SizedBox(width: 10),
               Transform.translate(offset: Offset(0, 2), child: Text("Error", style: TextStyle(fontWeight: FontWeight.bold),)),
             ],
@@ -359,7 +355,7 @@ class _ResultScreenState extends State<ResultScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("OK"),
+              child: Text("Okayyy, if you say so...", style: TextStyle(color: Colors.black54)),
             ),
           ],
         );

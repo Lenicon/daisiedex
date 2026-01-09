@@ -27,6 +27,8 @@ class _AppState extends State<App> {
         children: _pages,
       ),
       bottomNavigationBar: NavigationBar(
+        shadowColor: Colors.black,
+        elevation: 20.0,
         selectedIndex: _currentIndex,
         onDestinationSelected: (int index){
           
@@ -40,7 +42,7 @@ class _AppState extends State<App> {
 
         },
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.filter_vintage_rounded), label: 'Collections'),
+          NavigationDestination(icon: Icon(Icons.filter_vintage_rounded), label: 'Florilegium'),
           NavigationDestination(icon: Icon(Icons.filter_center_focus_rounded), label: 'Identifier')
         ]
       ),

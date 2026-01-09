@@ -32,22 +32,22 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text("Plant Details", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-        centerTitle: true,
-      ),
+      // backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      
+      appBar: AppBar(title: Text("${widget.plant.nickname}'s Details")),
+
       body: _showcasePlant(),
       
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 60),
+        padding: const EdgeInsets.fromLTRB(16, 15, 16, 60),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.secondary,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              offset: const Offset(0, -4),
-              blurRadius: 10, 
+              color: Colors.black.withValues(alpha: 0.01),
+              offset: const Offset(0, 0),
+              blurRadius: 5, 
             )]
         ),
         child: Column(
@@ -89,9 +89,10 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
 
           TextField(
             controller: _notesController,
+            keyboardType: TextInputType.multiline,
             minLines: 3,
             maxLines: 5,
-            decoration: const InputDecoration(labelText: 'Notes', border: OutlineInputBorder()),
+            decoration: const InputDecoration(labelText: 'Notes', border: OutlineInputBorder(), hint: Text('Enter your notes here...', style: TextStyle(color: Colors.black54),)),
           ),
           const SizedBox(height: 20),
 
@@ -99,8 +100,8 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
             width: double.infinity,
             child: TextButton.icon(
               onPressed: _isSaving ? null : _showDeleteConfirmation,
-              icon: const Icon(Icons.delete_forever, color: Colors.red),
-              label: const Text("Delete from Collection", style: TextStyle(color: Colors.red)),
+              icon: Icon(Icons.delete_forever, color: Theme.of(context).colorScheme.error),
+              label: Text("Delete from Collection", style: TextStyle(color: Theme.of(context).colorScheme.error)),
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
@@ -115,7 +116,7 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
     return Expanded(
       child: OutlinedButton(
         onPressed: () => Navigator.pop(context),
-        child: Text("Back", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+        child: Text("Back"),
       ),
     );
   }
@@ -123,12 +124,8 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
   Expanded _updateButton() {
     return Expanded(
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).primaryColor,
-          disabledBackgroundColor: Colors.grey
-        ),
         onPressed: _isSaving ? null : _handleUpdate,
-        child: Text(_isSaving ? "Updating..." : "Update Details", style: TextStyle(color: Colors.white)),
+        child: Text(_isSaving ? "Updating..." : "Update Details"),
       ),
     );
   }
@@ -140,7 +137,7 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           actionsAlignment: MainAxisAlignment.start,
-          backgroundColor: Colors.white,
+          // backgroundColor: Colors.white,
           title: const Text("Delete Plant?"),
           content: const Text("This will permanently remove this plant from your collection and cannot be undone."),
           actions: [
@@ -159,11 +156,11 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
                   // ignore: use_build_context_synchronously
                   Navigator.pop(context); 
                   snackbarKey.currentState?.showSnackBar(
-                    const SnackBar(content: Text("Plant removed from collection"), duration: Durations.short4)
+                    const SnackBar(content: Text("Plant removed from collection"), duration: Durations.medium4)
                   );
                 }
               },
-              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+              child: Text("Delete", style: TextStyle(color: Theme.of(context).colorScheme.error)),
             ),
           ],
         );
@@ -184,7 +181,7 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
 
       if (mounted) {
         snackbarKey.currentState?.showSnackBar(
-          const SnackBar(content: Text("Changes saved!"), duration: Durations.short4)
+          const SnackBar(content: Text("Changes saved!"), duration: Durations.medium4)
         );
         Navigator.pop(context);
       }
@@ -368,10 +365,10 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white,
+          // backgroundColor: Colors.white,
           title: Row(
             children: [
-              Icon(Icons.error_outline, color: Colors.red),
+              Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
               SizedBox(width: 10),
               Transform.translate(offset: Offset(0, 2), child: Text("Error", style: TextStyle(fontWeight: FontWeight.bold),)),
             ],
@@ -380,7 +377,7 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("OK"),
+              child: Text("Okayyy, if you say so...", style: TextStyle(color: Colors.black54)),
             ),
           ],
         );

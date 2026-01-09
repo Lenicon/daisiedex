@@ -22,8 +22,8 @@ class _ScannerState extends State<Scanner> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: appBar(),
+      // backgroundColor: Colors.white,
+      appBar: AppBar(title: Text("Plant Identifier")),
       body: Column(
         children: [
           Padding(
@@ -98,9 +98,9 @@ class _ScannerState extends State<Scanner> {
           left: 4,
           child: GestureDetector(
             onTap: () => setState(() => _selectedPhotos.removeAt(index)),
-            child: const CircleAvatar(
+            child: CircleAvatar(
               radius: 12,
-              backgroundColor: Color.fromARGB(255, 210, 46, 35),
+              backgroundColor: Theme.of(context).colorScheme.error,
               child: Icon(Icons.close, size: 16, color: Colors.white),
             ),
           ),
@@ -116,10 +116,10 @@ class _ScannerState extends State<Scanner> {
       onTap: () => _showPickerMenu(),
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: Color(0xFFF0DEDE),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Theme.of(context).colorScheme.primary,
+            // color: Theme.of(context).colorScheme.primary,
             style: BorderStyle.none
           ),
         ),
@@ -128,12 +128,12 @@ class _ScannerState extends State<Scanner> {
           children: [
             Icon(
               Icons.add_a_photo,
-              // color: Colors.green[800],
+              color: Color(0xFF524444),
               size: 32
             ),
             const SizedBox(height: 8),
             Text("Add Photo", style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Color(0xFF524444),
               fontWeight: FontWeight.bold
             )),
           ],
@@ -152,6 +152,8 @@ class _ScannerState extends State<Scanner> {
               ListTile(
                 leading: const Icon(Icons.photo_library),
                 title: const Text('Gallery'),
+                iconColor: Theme.of(context).colorScheme.onSecondary,
+                textColor: Theme.of(context).colorScheme.onSecondary,
                 onTap: () {
                   _processImage(ImageSource.gallery);
                   Navigator.of(context).pop();
@@ -160,6 +162,8 @@ class _ScannerState extends State<Scanner> {
               ListTile(
                 leading: const Icon(Icons.photo_camera),
                 title: const Text('Camera'),
+                iconColor: Theme.of(context).colorScheme.onSecondary,
+                textColor: Theme.of(context).colorScheme.onSecondary,
                 onTap: () {
                   _processImage(ImageSource.camera);
                   Navigator.of(context).pop();
@@ -203,7 +207,7 @@ class _ScannerState extends State<Scanner> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white,
+          
           title: const Text('Identify the organ'),
           content: const Text('Which part of the plant is in this photo?'),
           actions: options.map((String organ) {
@@ -231,8 +235,6 @@ class _ScannerState extends State<Scanner> {
       padding: const EdgeInsets.all(20.0),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          disabledBackgroundColor: Colors.grey,
           minimumSize: const Size(double.infinity, 50),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
@@ -246,9 +248,9 @@ class _ScannerState extends State<Scanner> {
             children: [
               SizedBox(width: 18, height: 18,child:CircularProgressIndicator(color: Colors.white)),
               SizedBox(width:16.0),
-              Transform.translate(offset: Offset(0, 2), child: Text("Hmm... identifying...", style: TextStyle(color: Colors.white, fontSize: 18)))
+              Transform.translate(offset: Offset(0, 2), child: Text("Hmm... identifying...", style: TextStyle(fontSize: 18)))
             ])
-          : Transform.translate(offset: Offset(0, 2), child:Text("Identify Plant", style: TextStyle(color: Colors.white, fontSize: 18)),)
+          : Transform.translate(offset: Offset(0, 2), child:Text("Identify Plant", style: TextStyle(fontSize: 18)),)
       ),
     );
   }
@@ -296,10 +298,11 @@ class _ScannerState extends State<Scanner> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white,
+          // backgroundColor: Colors.white,
+          actionsAlignment: MainAxisAlignment.start,
           title: Row(
             children: [
-              Icon(Icons.error_outline, color: Colors.red),
+              Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
               SizedBox(width: 10),
               Transform.translate(offset: Offset(0, 2), child: Text("Error", style: TextStyle(fontWeight: FontWeight.bold),)),
             ],
@@ -308,7 +311,7 @@ class _ScannerState extends State<Scanner> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("OK"),
+              child: Text("Okayyy, if you say so...", style: TextStyle(color: Colors.black54)),
             ),
           ],
         );
@@ -316,11 +319,4 @@ class _ScannerState extends State<Scanner> {
     );
   }
 
-  AppBar appBar() {
-    return AppBar(
-      title: Text('Identifier', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold, fontSize: 20)),
-      elevation: 0.0,
-      centerTitle: true,
-    );
-  }
 }

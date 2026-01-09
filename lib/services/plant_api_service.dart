@@ -62,7 +62,7 @@ class PlantApiService {
       }
 
     } catch (e) {
-      throw Exception("Something went wrong. Is that really a photo of a plant, pretty lady?");
+      throw Exception("Something went wrong. I don't think that's a plant, pretty lady.");
     }
 
   }
