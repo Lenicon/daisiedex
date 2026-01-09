@@ -31,27 +31,31 @@ class _ResultScreenState extends State<ResultScreen> {
       appBar: AppBar(title: Text("Identification Result")),
       
       body: showcasePlant(context),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(16, 50, 16, 100),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.secondary,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black,
-              offset: const Offset(0, -4),
-              blurRadius: 10, 
-            )]
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [Row(
-            children:[
-              _saveButton(context),
-              const SizedBox(width: 10),
-              _discardButton(context),
-            ]
-          )],
-        ),
+      bottomNavigationBar: _bottomNavigationBar(context)
+    );
+  }
+
+  Container _bottomNavigationBar(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 15, 16, 60),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondary,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.01),
+            offset: const Offset(0, 0),
+            blurRadius: 5, 
+          )]
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [Row(
+          children:[
+            _saveButton(context),
+            const SizedBox(width: 10),
+            _discardButton(context),
+          ]
+        )],
       ),
     );
   }
@@ -114,13 +118,6 @@ class _ResultScreenState extends State<ResultScreen> {
   Expanded _saveButton(BuildContext context) {
     return Expanded(
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          foregroundColor: Colors.black54,
-          disabledBackgroundColor: Colors.grey,
-          disabledForegroundColor: Colors.white,
-          animationDuration: Duration.zero,
-        ),
         onPressed: _isSaving ? null : () async {
           // SAVE LOGIC
           
@@ -149,7 +146,7 @@ class _ResultScreenState extends State<ResultScreen> {
 
             if (mounted) {
               snackbarKey.currentState?.showSnackBar(
-                const SnackBar(content: Text("Added to collection!"), duration: Durations.medium4)
+                const SnackBar(content: Text("Added to collection!"), duration: Durations.long3)
               );
               
               // ignore: use_build_context_synchronously
@@ -197,7 +194,7 @@ class _ResultScreenState extends State<ResultScreen> {
             // 2. Close Button
             Positioned(
               top: 40,
-              right: 20,
+              left: 20,
               child: IconButton(
                 icon: const Icon(Icons.close, color: Colors.white, size: 30),
                 onPressed: () => Navigator.pop(context),

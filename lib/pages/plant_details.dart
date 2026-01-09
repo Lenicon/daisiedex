@@ -39,27 +39,31 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
 
       body: _showcasePlant(),
       
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(16, 15, 16, 60),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.secondary,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.01),
-              offset: const Offset(0, 0),
-              blurRadius: 5, 
-            )]
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [Row(
-            children:[
-              _backButton(context),
-              const SizedBox(width: 10),
-              _updateButton(),
-            ]
-          )],
-        ),
+      bottomNavigationBar: _bottomNavigationBar(context),
+    );
+  }
+
+  Container _bottomNavigationBar(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 15, 16, 60),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondary,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.01),
+            offset: const Offset(0, 0),
+            blurRadius: 5, 
+          )]
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [Row(
+          children:[
+            _backButton(context),
+            const SizedBox(width: 10),
+            _updateButton(),
+          ]
+        )],
       ),
     );
   }
@@ -156,7 +160,7 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
                   // ignore: use_build_context_synchronously
                   Navigator.pop(context); 
                   snackbarKey.currentState?.showSnackBar(
-                    const SnackBar(content: Text("Plant removed from collection"), duration: Durations.medium4)
+                    const SnackBar(content: Text("Plant removed from collection"), duration: Durations.long3)
                   );
                 }
               },
@@ -181,7 +185,7 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
 
       if (mounted) {
         snackbarKey.currentState?.showSnackBar(
-          const SnackBar(content: Text("Changes saved!"), duration: Durations.medium4)
+          const SnackBar(content: Text("Changes saved!"), duration: Durations.long3)
         );
         Navigator.pop(context);
       }
@@ -192,7 +196,9 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
     }
   }
 
+
   ////////////// FOR IMAGES /////////////////////
+
   void _openFullImage(List<String> paths, int initialIndex) {
     showDialog(
       context: context,
@@ -230,6 +236,8 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
       ),
     );
   }
+
+
   Widget _buildDynamicCollage(List<String> paths) {
     double height = 200; // Total height for the banner
     int count = paths.length;
