@@ -2,12 +2,12 @@
 
 A daisie for a pretty lady.
 
-A mobile app that can **identify plants** based on photos and other features.
+A mobile app that can **identify plants** based on photos as well as keep a collection of discovered plants for fun.
 
-*ps: it's actually secret project I'm making for my crush.*
+*ps: it's actually a secret project I'm making for my crush.*
 
 
-## App Screenshots
+## Screenshots
 
 ![Plant Identifier](assets/images/Screenshot_2026-01-10-01-57-07-39_38de9374d91fe2d4a83138978662e3a6.jpg)
 
