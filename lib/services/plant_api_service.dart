@@ -1,6 +1,7 @@
 import 'package:floradex/env/env.dart';
 import 'package:floradex/models/plant_photo.dart';
 import 'package:floradex/models/plant_result.dart';
+import 'package:floradex/models/wikipedia_result.dart';
 // import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -46,6 +47,10 @@ class PlantApiService {
         var bestMatch = data['results'][0]; // Get the top result
         var species = bestMatch['species'];
 
+        
+        // Get Wikipedia Result
+        WikipediaResult wikires = await _fetchWiki(species['scientificNameWithoutAuthor']);
+
         PlantResult result = PlantResult(
           imagePaths: photos.map((p) => p.path).toList(),
           scientificName: species['scientificNameWithoutAuthor'],
@@ -53,6 +58,8 @@ class PlantApiService {
           family: species['family']['scientificNameWithoutAuthor'],
           commonNames: List<String>.from(species['commonNames']),
           nickname: species['scientificNameWithoutAuthor'].split(' ')[0], // First word
+          wikiSummary: wikires.fetchedSummary,
+          wikiImageURL: wikires.wikiImageURL
         );
 
         return result;
@@ -67,4 +74,38 @@ class PlantApiService {
 
   }
 
+  // Fetch wikipedia summary and image
+  static Future<WikipediaResult> _fetchWiki(String scientificName) async {
+    final encodedTitle = Uri.encodeComponent(scientificName);
+    final url = 'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts|pageimages&exintro&explaintext&redirects=1&titles=$encodedTitle&pithumbsize=1000';
+
+    WikipediaResult res = WikipediaResult(fetchedSummary: '', wikiImageURL: '');
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      
+      if (response.statusCode == 200){
+        // If data is found
+        final data = json.decode(response.body);
+        final pages = data['query']['pages'] as Map<String, dynamic>;
+        final pageId = pages.keys.first;
+
+        if (pageId != "-1"){
+          // If found pageID
+          res.fetchedSummary = pages[pageId]['extract']?.split('\n\n==')[0];
+          res.wikiImageURL = pages[pageId]['thumbnail']?['source'];
+
+          return res;
+        }
+
+        return res;
+
+      } else {
+        return res;
+      }
+    } catch (e) {
+      return res;
+    }
+  }
 }
+

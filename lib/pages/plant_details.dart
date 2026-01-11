@@ -1,12 +1,13 @@
 
 
 import 'dart:io';
-
 import 'package:floradex/main.dart';
 import 'package:floradex/models/plant_result.dart';
 import 'package:floradex/services/storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:gal/gal.dart';
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 class PlantDetailScreen extends StatefulWidget {
   final PlantResult plant;
@@ -37,7 +38,9 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       
       appBar: AppBar(
-        title: Row(
+        title: widget.plant.nickname == ''
+        ? Text("Plant Details")
+        : Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(
@@ -114,6 +117,8 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
             decoration: const InputDecoration(labelText: 'Notes', border: OutlineInputBorder(), hint: Text('Enter your notes here...', style: TextStyle(color: Colors.black54),)),
           ),
           const SizedBox(height: 20),
+
+          _wikiRow(widget.plant.wikiSummary!, widget.plant.wikiImageURL!),
 
           SizedBox(
             width: double.infinity,
@@ -238,7 +243,7 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
         backgroundColor: Colors.black,
         body: Stack(
           children: [
-            // 1. Swipable Image Viewer
+            // Swipable Image Viewer
             Center(
               child: PageView.builder(
                 controller: PageController(initialPage: initialIndex),
@@ -462,4 +467,172 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
       },
     );
   }
+
+
+  /// For Wikipedia Entries
+  
+  Widget _wikiRow(String summary, String image) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Wikipedia Section
+          const Text("Reference Information", 
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)),
+          const SizedBox(height: 8),
+          
+          if (summary == '')
+            const Text("No additional information found on Wikipedia.", 
+              style: TextStyle(fontStyle: FontStyle.italic, color: Colors.black38))
+          else
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.grey.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.black12)
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Wiki Image
+                  if (image != '')
+                    GestureDetector(
+                      onTap: () => _openFullImageWiki(image, widget.plant.scientificName),
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                        child: Stack(
+                          alignment: Alignment.bottomRight,
+                          children: [
+                            Image.network(
+                              image,
+                              height: 180,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              margin: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(4)),
+                              child: const Icon(Icons.fullscreen, color: Colors.white, size: 20),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  
+                  // Wiki Text
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(summary, 
+                          style: const TextStyle(fontSize: 15, height: 1.5, color: Colors.black87)),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Icon(Icons.info_outline, size: 14, color: Colors.blue),
+                            SizedBox(width: 4),
+                            GestureDetector(
+                              onTap: () async {
+                                final encodedTitle = Uri.encodeComponent(widget.plant.scientificName);
+                                final Uri url = Uri.parse('https://en.wikipedia.org/wiki/$encodedTitle');
+                                if (!await launchUrl(url, mode: LaunchMode.externalApplication)){
+                                  _showErrorDialog("Sorry pretty lady, I couldn't open the Wikipedia link.");
+                                }
+                              },
+                              child: Text("Source: Wikipedia", style: TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.bold)),
+                            )
+                          ], 
+                        )
+                      ]
+                    )
+                  )
+                ]
+              )
+            ),
+
+            if (summary == '') const Divider()
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openFullImageWiki(String imageURL, String scientificName) async {
+    if (imageURL == '') return;
+
+    showDialog(
+      context: context,
+      useSafeArea: false,
+      builder: (context) => Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            Center(
+              child: InteractiveViewer(child: Image.network(imageURL)),
+            ),
+            Positioned(
+              top: 50,
+              left: 0,
+              right: 0,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children:[
+                    // Close Button
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    // Download Button
+                    IconButton(
+                      // style: TextButton.styleFrom(iconSize: 30, backgroundColor: Colors.black45, foregroundColor: Colors.white),
+                      icon: const Icon(Icons.download_rounded, color: Colors.white, size: 30),
+                      onPressed: () async {
+                        
+                        if (StorageService.isSaved(imageURL)){
+                          snackbarKey.currentState?.showSnackBar(
+                            const SnackBar(content: Text("Image already saved!"), duration: Duration(seconds: 2))
+                          );
+                          return;
+                        }
+                        
+                        try {
+                          // Download image byte
+                          final response = await http.get(Uri.parse(imageURL));
+
+                          // Save to temporary file
+                          final tempDir = Directory.systemTemp;
+                          final tempFile = File('${tempDir.path}/$scientificName.jpg');
+                          await tempFile.writeAsBytes(response.bodyBytes);
+
+                          // Save to Gallery
+                          await Gal.putImage(tempFile.path, album: 'DaisieDex');
+
+                          StorageService.markAsSaved(imageURL);
+                          snackbarKey.currentState?.showSnackBar(
+                            const SnackBar(content: Text("Saved to Gallery!"), duration: Duration(seconds: 2))
+                          );
+                          
+                        } catch (e) {
+                          _showErrorDialog("Couldn't save image: $e");
+                        }
+                      },
+                    )
+                  ]
+                )
+              ) 
+              
+            ),
+          ],
+        ),
+      )
+    );
+  }
+
+
+
+
 }

@@ -49,6 +49,8 @@ class StorageService {
       'family': result.family,
       'commonNames': result.commonNames,
       'notes': result.notes,
+      'wikiSummary': result.wikiSummary,
+      'wikiImageURL': result.wikiImageURL
     });
 
     await targetFile.writeAsString(jsonEncode(currentList));
@@ -86,13 +88,13 @@ class StorageService {
         String content = await file.readAsString();
         List<dynamic> list = jsonDecode(content);
         
-        // 1. Find the plant to get its image paths before deleting it
+        // Find the plant to get its image paths before deleting it
         int index = list.indexWhere((plant) => plant['id'] == id);
 
         if (index != -1) {
           final plantToDelete = list[index];
 
-          // 2. Delete the physical image files from the 'photos' folder
+          // Delete the physical image files from the 'photos' folder
           if (plantToDelete['imagePaths'] != null) {
             List<dynamic> paths = plantToDelete['imagePaths'];
             for (String path in paths) {
@@ -103,13 +105,13 @@ class StorageService {
             }
           }
 
-          // 3. Remove from the JSON list
+          // Remove from the JSON list
           list.removeAt(index);
 
-          // 4. Save the updated list back to the file
+          // Save the updated list back to the file
           await file.writeAsString(jsonEncode(list));
 
-          // 5. Broadcast the change to Floradex real-time
+          // Broadcast the change to Floradex real-time
           await load(); 
           return;
         }
@@ -150,7 +152,7 @@ class StorageService {
     return tempPath;
   }
 
-  // check if saved this session
+  // Check if saved this session to prevent multisaving
   static final Set<String> globalSavedPaths = {};
 
   static void markAsSaved(String path) {

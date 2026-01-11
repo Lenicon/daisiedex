@@ -74,13 +74,15 @@ class _FloradexState extends State<Floradex> {
                       // Map JSON to PlantResult object for the Details screen
                       final plantObj = PlantResult(
                         id: plantData['id'], // ID is crucial for updating/deleting
-                        nickname: plantData['nickname'] ?? 'Unnamed',
+                        nickname: plantData['nickname'] == '' ? "Unnamed" : plantData['nickname'] ?? 'Unnamed',
                         notes: plantData['notes'] ?? "",
                         imagePaths: List<String>.from(plantData['imagePaths'] ?? []),
                         authorship: plantData['authorship'] ?? "",
                         scientificName: plantData['scientificName'] ?? "",
                         family: plantData['family'] ?? "",
                         commonNames: List<String>.from(plantData['commonNames'] ?? []),
+                        wikiSummary: plantData['wikiSummary'] ?? "",
+                        wikiImageURL: plantData['wikiImageURL'] ?? ""
                       );
 
                       return GestureDetector(
