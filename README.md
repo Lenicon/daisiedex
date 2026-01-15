@@ -9,8 +9,14 @@ A mobile app that can **identify plants** based on photos as well as keep a coll
 
 ## Screenshots
 
-<img src="assets/images/1.jpg" width="270" height="600">
-<img src="assets/images/2.jpg" width="270" height="600">
-<img src="assets/images/3.jpg" width="270" height="600">
-<img src="assets/images/4.jpg" width="270" height="600">
-<img src="assets/images/5.jpg" width="270" height="600">
+<p>
+  <img src="assets/images/1.jpg" width="25%">
+  &nbsp;&nbsp;&nbsp;
+  <img src="assets/images/2.jpg" width="25%">
+  &nbsp;&nbsp;&nbsp;
+  <img src="assets/images/3.jpg" width="25%">
+  &nbsp;&nbsp;&nbsp;
+  <img src="assets/images/4.jpg" width="25%">
+  &nbsp;&nbsp;&nbsp;
+  <img src="assets/images/5.jpg" width="25%">
+</p>
