@@ -1,4 +1,8 @@
-# DaisieDex
+<p align="center">
+  <img src="assets/icons/icon_splash.png" style="border-radius: 100%;" alt="Logo" width="150"/>
+  &nbsp;&nbsp;&nbsp;
+  <h1>DaisieDex</h1>
+</p>
 
 A daisie for a pretty lady.
 
