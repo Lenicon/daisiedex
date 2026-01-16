@@ -21,7 +21,6 @@ class PlantDetailScreen extends StatefulWidget {
 class _PlantDetailScreenState extends State<PlantDetailScreen> {
   late TextEditingController _nicknameController;
   late TextEditingController _notesController;
-  // late String _originalNickname; // To find the record in the file later
   bool _isSaving = false;
 
   @override
@@ -29,7 +28,6 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
     super.initState();
     _nicknameController = TextEditingController(text: widget.plant.nickname);
     _notesController = TextEditingController(text: widget.plant.notes);
-    // _originalNickname = widget.plant.nickname;
   }
 
   @override
@@ -91,7 +89,6 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          // REUSE your collage logic here
           _buildDynamicCollage(widget.plant.imagePaths),
           const SizedBox(height: 16),
           
@@ -146,7 +143,7 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
     );
   }
 
-  // Check if current text fields differ from the original plant data
+  // Check if current text fields differ from original plant data
   bool get _hasChanges {
     return _nicknameController.text != widget.plant.nickname ||
           _notesController.text != widget.plant.notes;
@@ -239,7 +236,7 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
 
     showDialog(
       context: context,
-      useSafeArea: false, // Allows the image to take up the whole screen
+      useSafeArea: false, // This allows the image to take up the whole screen
       builder: (context) => Scaffold(
         backgroundColor: Colors.black,
         body: Stack(
@@ -314,13 +311,14 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
   }
 
 
+  // This is for image collaging, something like in Facebook
   Widget _buildDynamicCollage(List<String> paths) {
-    double height = 200; // Total height for the banner
+    double height = 200; // banner height
     int count = paths.length;
 
     // if (count == 0) return const SizedBox.shrink();
 
-    // Layout for 1 Image: Full screen width
+    // 1 image: 1 big image on center
     if (count == 1) {
       return SizedBox(
         height: height,
@@ -330,7 +328,7 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
       );
     }
 
-    // Layout for 2 Images: Two equal columns
+    // 2 Images: 2 columns
     if (count == 2) {
       return SizedBox(
         height: height,
@@ -344,7 +342,7 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
       );
     }
 
-    // Layout for 3 Images: Large left, two stacked on the right
+    // 3 images: 1 big image on left, 2 stacked on right
     if (count == 3) {
       return SizedBox(
         height: height,
@@ -354,7 +352,7 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
             const SizedBox(width: 2),
             Expanded(
               flex: 1,
-              child: Column(
+              child: Column( // for stacking
                 children: [
                   Expanded(child: _imageWrapper(paths[1], height / 2, paths, 1)),
                   const SizedBox(height: 2),
@@ -367,8 +365,7 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
       );
     }
 
-    // Layout for 4 or 5 Images: Large left, three stacked on the right
-    // (Matches your 4th diagram with the "+" overlay logic)
+    // 4 - 5 images: 1 big image on left, 3 stacked on right, add + on 3rd image if 5
     return SizedBox(
       height: height,
       child: Row(
@@ -416,7 +413,7 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
     );
   }
 
-  // Helper to handle the File Image and fit
+  // Handler for fitting images
   Widget _imageWrapper(String path, double height, List<String> allPaths, int index) {
     return GestureDetector(
       onTap: () => _openFullImage(allPaths, index),

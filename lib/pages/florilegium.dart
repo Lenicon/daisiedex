@@ -35,10 +35,10 @@ class _FlorilegiumState extends State<Florilegium> {
     return Scaffold(
       // backgroundColor: Colors.white,
       // backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: appBar(),
+      appBar: _appBar(),
       body: Column(
         children: [
-          searchField(),
+          _searchField(),
 
           Expanded(
             child: ValueListenableBuilder<List<dynamic>>(
@@ -150,7 +150,7 @@ class _FlorilegiumState extends State<Florilegium> {
   }
 
 
-  Container searchField() {
+  Container _searchField() {
     return Container(
           margin: EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -193,7 +193,7 @@ class _FlorilegiumState extends State<Florilegium> {
 
   
 
-  AppBar appBar() {
+  AppBar _appBar() {
     return AppBar(
       centerTitle: true,
       title: ValueListenableBuilder<List<dynamic>>(
