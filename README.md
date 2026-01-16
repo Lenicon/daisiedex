@@ -1,14 +1,10 @@
-<p align="center">
-  <img src="assets/icons/icon_splash.png" style="border-radius: 100%;" alt="Logo" width="150"/>
-  &nbsp;&nbsp;&nbsp;
-  <h1>DaisieDex</h1>
-</p>
+# 🌸 DaisieDex
 
 A daisie for a pretty lady.
 
 A mobile app that can **identify plants** based on photos as well as keep a collection of discovered plants for fun.
 
-*ps: it's actually a secret project I'm making for my left-handed crush.*
+*ps: it's actually a secret project I made for my left-handed crush.*
 
 
 ## Screenshots
