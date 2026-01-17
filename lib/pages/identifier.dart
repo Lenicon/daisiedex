@@ -159,6 +159,7 @@ class _IdentifierState extends State<Identifier> {
                   Navigator.of(context).pop();
                 },
               ),
+              // TODO: Change logic a bit since different for Windows and Android
               ListTile(
                 leading: const Icon(Icons.photo_camera),
                 title: const Text('Camera'),
